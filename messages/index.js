@@ -22,21 +22,21 @@ bot.localePath(path.join(__dirname, './locale'));
 
 bot.dialog('/', [
     function (session) {
-        builder.Prompts.text(session, "Hola... Cuales es tu nombre?");
+        builder.Prompts.text(session, "Hola... Cual es es tu nombre?");
     },
     function (session, results) {
         session.userData.name = results.response;
-        builder.Prompts.number(session, "Hi " + results.response + ", How many years have you been coding?"); 
+        builder.Prompts.number(session, "Hi " + results.response + ", Cuantos anios llevas desarrollando codigo?"); 
     },
     function (session, results) {
         session.userData.coding = results.response;
-        builder.Prompts.choice(session, "What language do you code Node using?", ["JavaScript", "CoffeeScript", "TypeScript"]);
+        builder.Prompts.choice(session, "Cual lenguaje usas para desarrollar Node?", ["JavaScript", "CoffeeScript", "TypeScript"]);
     },
     function (session, results) {
         session.userData.language = results.response.entity;
         session.send("Got it... " + session.userData.name + 
-                    " you've been programming for " + session.userData.coding + 
-                    " years and use " + session.userData.language + ".");
+                    " has estado desarrollando codigo desde hace " + session.userData.coding + 
+                    " anios y usas " + session.userData.language + " para archivos Node.");
     }
 ]);
 
