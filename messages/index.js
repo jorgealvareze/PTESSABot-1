@@ -8,7 +8,7 @@ https://aka.ms/abs-node-waterfall
 
 
 /*-------------------- Bloque de codigo para usar emulador local ------------*/
-
+/*
 //Configuracion de restify y builder
 var restify = require('restify');
 var builder = require('botbuilder');
@@ -32,7 +32,6 @@ var connector = new builder.ChatConnector(
     }
 );
 
-/*-------------------- Bloque de codigo para usar emulador local ------------*/
 
 
 //Crear un conector de tipo chat para conectarse a un canal.
@@ -45,11 +44,14 @@ bot.localePath(path.join(__dirname, './locale')); //Asignarle al bot la ubicacio
 //Enlazar el listening del bot al objeto tipo server creado anteriormente
 server.post('/api/messages',connector.listen());
 
+*/
+/*-------------------- Bloque de codigo para usar emulador local ------------*/
+
 
 
 /*-------------------- Bloque de codigo para usar el Azure Bot Service ------------*/
 /*---------------------------------------------------------------------------------*/
-/*
+
 
 var builder = require("botbuilder"); //modulo para la creacion de objetos tipo bot
 var botbuilder_azure = require("botbuilder-azure"); //modulo para la creacion de objetos tipo bot en azure
@@ -71,7 +73,7 @@ var connector = useEmulator ? new builder.ChatConnector() : new botbuilder_azure
 var bot = new builder.UniversalBot(connector); //Crear bot
 bot.localePath(path.join(__dirname, './locale')); //Asignarle al bot la ubicacion del folder "locale"
 
-*/
+
 
 /*---------------------------------------------------------------------------------*/
 /*-------------------- Bloque de codigo para usar el Azure Bot Service ------------*/
@@ -240,7 +242,7 @@ bot.dialog('/consultarPermisos',[
 
 
 
-/*
+
 if (useEmulator) {
     var restify = require('restify');
     var server = restify.createServer();
@@ -251,5 +253,5 @@ if (useEmulator) {
 } else {
     module.exports = { default: connector.listen() }
 }
-*/
+
 
