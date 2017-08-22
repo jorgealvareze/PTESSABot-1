@@ -8,7 +8,7 @@ https://aka.ms/abs-node-waterfall
 
 
 /*-------------------- Bloque de codigo para usar emulador local ------------*/
-/*
+
 //Configuracion de restify y builder
 var restify = require('restify');
 var builder = require('botbuilder');
@@ -32,6 +32,7 @@ var connector = new builder.ChatConnector(
     }
 );
 
+/*-------------------- Bloque de codigo para usar emulador local ------------*/
 
 
 //Crear un conector de tipo chat para conectarse a un canal.
@@ -44,14 +45,11 @@ bot.localePath(path.join(__dirname, './locale')); //Asignarle al bot la ubicacio
 //Enlazar el listening del bot al objeto tipo server creado anteriormente
 server.post('/api/messages',connector.listen());
 
-*/
-/*-------------------- Bloque de codigo para usar emulador local ------------*/
-
 
 
 /*-------------------- Bloque de codigo para usar el Azure Bot Service ------------*/
 /*---------------------------------------------------------------------------------*/
-
+/*
 
 var builder = require("botbuilder"); //modulo para la creacion de objetos tipo bot
 var botbuilder_azure = require("botbuilder-azure"); //modulo para la creacion de objetos tipo bot en azure
@@ -73,7 +71,7 @@ var connector = useEmulator ? new builder.ChatConnector() : new botbuilder_azure
 var bot = new builder.UniversalBot(connector); //Crear bot
 bot.localePath(path.join(__dirname, './locale')); //Asignarle al bot la ubicacion del folder "locale"
 
-
+*/
 
 /*---------------------------------------------------------------------------------*/
 /*-------------------- Bloque de codigo para usar el Azure Bot Service ------------*/
@@ -117,7 +115,7 @@ bot.dialog('/menuPrincipal',[
     
     function (session) {
         
-        builder.Prompts.choice(session,'En que podemos ayudarle el dia de hoy?','Contactar a Rep. de Ventas|Consultar Permisos|Consultar Horario de Contrarecibos|Salir', { listStyle: builder.ListStyle.button });
+        builder.Prompts.choice(session,'En que podemos ayudarle el día de hoy?','Contactar a Rep. de Ventas|Consultar Permisos|Consultar Horario de Contrarecibos|Salir', { listStyle: builder.ListStyle.button });
     },
         
         
@@ -131,7 +129,7 @@ bot.dialog('/menuPrincipal',[
             //Guardar la opcion seleccionada en una variable a nivel sesion.
             session.userData.opcionSeleccionada = 1 //Contactar rep. de ventas
 
-            builder.Prompts.text(session, `Usted selecciono la opcion: ${session.userData.seleccionMenuPrincipal} .`);
+            builder.Prompts.text(session, `Usted seleccionó la opcion: ${session.userData.seleccionMenuPrincipal} .`);
     
             session.endDialog();
         }
@@ -155,7 +153,7 @@ bot.dialog('/menuPrincipal',[
             //Guardar la opcion seleccionada en una variable a nivel sesion.
             session.userData.opcionSeleccionada = 3 //Consultar horario de contrarecibos
             
-            builder.Prompts.text(session, `Usted selecciono la opcion: ${session.userData.seleccionMenuPrincipal}. `);
+            builder.Prompts.text(session, `Usted seleccionó la opción: ${session.userData.seleccionMenuPrincipal}. `);
                         
             session.endDialog();
         }
@@ -165,7 +163,7 @@ bot.dialog('/menuPrincipal',[
             //Guardar la opcion seleccionada en una variable a nivel sesion.
             session.userData.opcionSeleccionada = 4 //salir
             
-            session.endDialog(`Gracias, fue un placer atenderlo y que tenga un excelente dia.`);
+            session.endDialog(`Gracias, fue un placer atenderlo y que tenga un excelente día.`);
 
         }
 
@@ -186,15 +184,15 @@ bot.dialog('/consultarPermisos',[
     
      function(session) {
         
-        session.send(`A continuacion se muestran los permitos otorgados a PTESSA. Favor de seleccionar cual de ellos desea consultar.`);
+        session.send(`A continuación se muestran los permisos otorgados a PTESSA. En cada opción podra ver el tipo de permiso, la autoridad que lo otorga y una liga para poder ver una copia del permiso en formato pdf.`);
 
         //heroCard permiso de Acopio RME
         var heroCardAcopioRME = new builder.HeroCard(session)
             .title('Permiso de Acopio de Residuos de Manejo Especial (RME)')
-            .subtitle('Otorgado por: Secretaria de Proteccion Ambiental (SPA)')
-            .text('Clic sobre la imagen para obtener una copia del permiso en formato PDF')
+            .subtitle('Otorgado por: Secretaría de Protección al Ambiente (SPA)')
+            .text('Clic sobre la liga/botón para ver una copia del permiso en formato PDF')
             .images([
-                builder.CardImage.create(session,'http://www.ptesmx.com/download/botImages/acopioRME.png')
+                builder.CardImage.create(session,'http://www.ptesmx.com/download/botImages/acopioRME.jpg')
 
             ])
             .buttons([
@@ -203,8 +201,8 @@ bot.dialog('/consultarPermisos',[
 
         var heroCardTransporteRME = new builder.HeroCard(session)
             .title('Permiso de Transporte de Residuos de Manejo Especial (RME)')
-            .subtitle('Otorgado por: Secretaria de Proteccion Ambiental (SPA)')
-            .text('Clic sobre la imagen para obtener una copia del permiso en formato PDF')
+            .subtitle('Otorgado por: Secretaría de Protección al Ambiente (SPA)')
+            .text('Clic sobre la liga/botón para ver una copia del permiso en formato PDF')
             .images([
                 builder.CardImage.create(session,'http://www.ptesmx.com/download/botImages/transporteRME.jpg')
 
@@ -215,8 +213,8 @@ bot.dialog('/consultarPermisos',[
 
         var heroCardAcopioRP = new builder.HeroCard(session)
             .title('Permiso de Acopio de Residuos Peligrosos')
-            .subtitle('Otorgado por: Secretaria de Proteccion Ambiental (SPA)')
-            .text('Clic sobre la imagen para obtener una copia del permiso en formato PDF')
+            .subtitle('Otorgado por: Secretaría del Medio Ambiente y Recursos Naturales (SEMARNAT)')
+            .text('Clic sobre la liga/botón para ver una copia del permiso en formato PDF')
             .images([
                 builder.CardImage.create(session,'http://www.ptesmx.com/download/botImages/acopioRP.jpg')
 
@@ -225,9 +223,20 @@ bot.dialog('/consultarPermisos',[
                 builder.CardAction.openUrl(session,'https://pnet.ptesmx.com/permisos/almacenamiento.pdf','Acopio RP')
             ]);
 
+        var heroCardTransporteRP = new builder.HeroCard(session)
+            .title('Permiso de Transporte de Residuos Peligrosos')
+            .subtitle('Otorgado por: Secretaría del Medio Ambiente y Recursos Naturales (SEMARNAT)')
+            .text('Clic sobre la liga/botón para ver una copia del permiso en formato PDF')
+            .images([
+                builder.CardImage.create(session,'http://www.ptesmx.com/download/botImages/transporteRP.jpg')
+
+            ])
+            .buttons([
+                builder.CardAction.openUrl(session,'https://pnet.ptesmx.com/permisos/transporteresiduos.pdf','Transporte RP')
+            ]);
 
         //Creamos un array de tarjetas
-        var tarjetas = [heroCardAcopioRME, heroCardTransporteRME, heroCardAcopioRP];
+        var tarjetas = [heroCardAcopioRME, heroCardTransporteRME, heroCardAcopioRP, heroCardTransporteRP];
 
         //Adjuntamos la tarjeta al mensaje
         var msj = new builder.Message(session).attachmentLayout(builder.AttachmentLayout.carousel).attachments(tarjetas);
@@ -242,7 +251,7 @@ bot.dialog('/consultarPermisos',[
 
 
 
-
+/*
 if (useEmulator) {
     var restify = require('restify');
     var server = restify.createServer();
@@ -253,5 +262,5 @@ if (useEmulator) {
 } else {
     module.exports = { default: connector.listen() }
 }
-
+*/
 
