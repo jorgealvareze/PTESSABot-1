@@ -8,7 +8,6 @@ https://aka.ms/abs-node-waterfall
 
 
 /*-------------------- Bloque de codigo para usar emulador local ------------*/
-/*
 
 //Configuracion de restify y builder
 var restify = require('restify');
@@ -41,18 +40,23 @@ var bot = new builder.UniversalBot(connector);
 bot.localePath(path.join(__dirname, './locale')); //Asignarle al bot la ubicacion del folder "locale"
 
 
+
 //Enlazar el listening del bot al objeto tipo server creado anteriormente
 server.post('/api/messages',connector.listen());
 
 
-*/
 /*-------------------- Bloque de codigo para usar emulador local ------------*/
+
+
+
+
+
 
 
 
 /*-------------------- Bloque de codigo para usar el Azure Bot Service ------------*/
 /*---------------------------------------------------------------------------------*/
-
+/*
 
 var builder = require("botbuilder"); //modulo para la creacion de objetos tipo bot
 var botbuilder_azure = require("botbuilder-azure"); //modulo para la creacion de objetos tipo bot en azure
@@ -74,7 +78,7 @@ var connector = useEmulator ? new builder.ChatConnector() : new botbuilder_azure
 var bot = new builder.UniversalBot(connector); //Crear bot
 bot.localePath(path.join(__dirname, './locale')); //Asignarle al bot la ubicacion del folder "locale"
 
-
+*/
 
 /*---------------------------------------------------------------------------------*/
 /*-------------------- Bloque de codigo para usar el Azure Bot Service ------------*/
@@ -82,21 +86,94 @@ bot.localePath(path.join(__dirname, './locale')); //Asignarle al bot la ubicacio
 
 
 bot.dialog('/', [
-    function(session, results){
+    function(session,args,next){
 
-        //Dialogo para dar bienvenida y preguntar el nombre
-        builder.Prompts.text(session,'Bienvenido!\n Con quien tenemos el gusto?');
+        //Validar si el usuario ya menciono su nombre. El nombre se graba la primera vez que se ejecuta el Bot.
+        if (!session.userData.nombreUsuario) {
+
+            //Iniciar nuevo dialogo menu principal
+            session.beginDialog('/obtenerNombreUsuario');
+            
+            //Dialogo para dar bienvenida y preguntar el nombre
+            //builder.Prompts.text(session,'Bienvenido!\n Con quien tenemos el gusto?');
+        
+        }
+        else {
+            //se agrego el parametro 'args' en la funcion para que no aparezca el error 'next function not found'.
+            next();   
+        }
+    },
+    function(session,results,next){
+
+        if (!session.userData.nombreUsuario) {
+
+            //obtener el nombre proporcionado por el usuario y mostrarlo
+            session.userData.nombreUsuario = results.response;        
+            session.send(`Hola ${session.userData.nombreUsuario}`);
+        
+        }
+        
+        //Iniciar nuevo dialogo menu principal
+        session.beginDialog('/menuPrincipal');
 
     },
     function(session, results){
 
-        //obtener el nombre proporcionado por el usuario y mostrarlo
-        session.userData.nombre = results.response;        
-        session.send(`Hola ${session.userData.nombre}`);
+        //Guardar la opcion seleccionada en una variable a nivel sesion.
+        session.userData.seleccionMenuPrincipal = results.response.entity;
         
-        //Iniciar nuevo dialogo menu principal
-        session.beginDialog('/menuPrincipal');
+        if (session.userData.seleccionMenuPrincipal == "Contactar a Rep. de Ventas o SC") {
+
+            //Guardar la opcion seleccionada en una variable a nivel sesion.
+            session.userData.opcionSeleccionada = 1; //Contactar rep. de ventas
+                        
+            //Iniciar dialogo contactar rep. de ventas
+            session.beginDialog('/contactarRepVentas');
+
+        }
+
+        else if (session.userData.seleccionMenuPrincipal == "Consultar Permisos") {
+
+            //Guardar la opcion seleccionada en una variable a nivel sesion.
+            session.userData.opcionSeleccionada = 2; //Consultar permisos
+                        
+            //Iniciar nuevo dialogo consultar permisos
+            session.beginDialog('/consultarPermisos');
+
+        }
+
+        else if (session.userData.seleccionMenuPrincipal == "Dia de Entrega de Contrarecibos-Cheques") {
+            
+            //builder.Prompts.text(session, `Usted seleccionó la opción: ${session.userData.seleccionMenuPrincipal}. `);
+
+            //Guardar la opcion seleccionada en una variable a nivel sesion.
+            session.userData.opcionSeleccionada = 3; //Consultar horario de contrarecibos
+            
+            //Iniciar nuevo dialogo consultar horario de contrarecibos
+            session.beginDialog('/consultarHorarioContrarecibos');
+                        
+            //session.endDialog(); //menuPrincipal
+        }
+        
+        else if (session.userData.seleccionMenuPrincipal == "Salir") {
+            
+            //Guardar la opcion seleccionada en una variable a nivel sesion.
+            session.userData.opcionSeleccionada = 4; //salir
+            
+            //Iniciarlizar variables antes de cerrar la conversacion
+            session.userData.nombreUsuario = "";
+
+            session.endConversation(`Gracias, fue un placer atenderlo y que tenga un excelente día.`); //menuPrincipal
+
+        }
+
+        else{
+
+            session.endDialog(`La respuesta no coincide con ninguna de las opciones del menu.`); //menuPrincipal
+        }
+
     }
+
 
     /*
     function (session, results) {
@@ -114,80 +191,109 @@ bot.dialog('/', [
 ]);
 
 
+bot.dialog('/obtenerNombreUsuario', [
+
+    function(session,next){
+
+        //Dialogo para dar bienvenida y preguntar el nombre
+        builder.Prompts.text(session,'Bienvenido!\n Con quien tenemos el gusto?');
+                    
+    },
+    function(session,results,next)
+    {
+        session.endDialogWithResult(results);
+    }
+]);
+
 bot.dialog('/menuPrincipal',[
     
     function (session) {
         
-        builder.Prompts.choice(session,'En que podemos ayudarle el día de hoy?','Contactar a Rep. de Ventas|Consultar Permisos|Consultar Horario de Contrarecibos|Salir', { listStyle: builder.ListStyle.button });
+        builder.Prompts.choice(session,'En que podemos ayudarle el día de hoy?. (Seleccione una de las opciones haciendo clic sobre ella)','Contactar a Rep. de Ventas o SC|Consultar Permisos|Dia de Entrega de Contrarecibos-Cheques|Salir', { listStyle: builder.ListStyle.button });
     },
         
         
     function (session, results) {
-            
+        
+        session.endDialogWithResult(results);
+
+
+        /*
         //Guardar la opcion seleccionada en una variable a nivel sesion.
         session.userData.seleccionMenuPrincipal = results.response.entity;
 
         if (session.userData.seleccionMenuPrincipal == "Contactar a Rep. de Ventas") {
 
-            //Guardar la opcion seleccionada en una variable a nivel sesion.
-            session.userData.opcionSeleccionada = 1 //Contactar rep. de ventas
+            //builder.Prompts.text(session, `Usted seleccionó la opcion: ${session.userData.seleccionMenuPrincipal} .`);
 
-            builder.Prompts.text(session, `Usted seleccionó la opcion: ${session.userData.seleccionMenuPrincipal} .`);
-    
-            session.endDialog();
+            //Guardar la opcion seleccionada en una variable a nivel sesion.
+            session.userData.opcionSeleccionada = 1; //Contactar rep. de ventas
+
+            //Iniciar nuevo dialogo contactar rep. ventas
+            session.beginDialog('/contactarRepVentas');
+
+            session.endDialog(); //menuPrincipal
         }
                 
         else if (session.userData.seleccionMenuPrincipal == "Consultar Permisos") {
 
+            //builder.Prompts.text(session, `Usted selecciono la opcion: ${session.userData.seleccionMenuPrincipal}. `);
+
             //Guardar la opcion seleccionada en una variable a nivel sesion.
-            session.userData.opcionSeleccionada = 2 //Consultar permisos
+            session.userData.opcionSeleccionada = 2; //Consultar permisos
             
+            session.send(`Procesando su solicitud. Por favor espere un momento.....`);
+
             //Iniciar nuevo dialogo consultar permisos
             session.beginDialog('/consultarPermisos');
             
-            //builder.Prompts.text(session, `Usted selecciono la opcion: ${session.userData.seleccionMenuPrincipal}. `);
+            
+            //Iniciar nuevo dialogo continuar chat
+            //session.beginDialog('/continuarChat');
 
-            session.endDialog(); //menuPrincipal
+
+            //session.endDialog(); //menuPrincipal
 
         }
 
         else if (session.userData.seleccionMenuPrincipal == "Consultar Horario de Contrarecibos") {
             
             //Guardar la opcion seleccionada en una variable a nivel sesion.
-            session.userData.opcionSeleccionada = 3 //Consultar horario de contrarecibos
+            session.userData.opcionSeleccionada = 3; //Consultar horario de contrarecibos
             
             builder.Prompts.text(session, `Usted seleccionó la opción: ${session.userData.seleccionMenuPrincipal}. `);
                         
-            session.endDialog();
+            session.endDialog(); //menuPrincipal
         }
         
         else if (session.userData.seleccionMenuPrincipal == "Salir") {
             
             //Guardar la opcion seleccionada en una variable a nivel sesion.
-            session.userData.opcionSeleccionada = 4 //salir
+            session.userData.opcionSeleccionada = 4; //salir
             
-            session.endDialog(`Gracias, fue un placer atenderlo y que tenga un excelente día.`);
+            session.endDialog(`Gracias, fue un placer atenderlo y que tenga un excelente día.`); //menuPrincipal
 
         }
 
         else{
 
-            session.endDialog(`La respuesta no coincide con ninguna de las opciones del menu.`);
+            session.endDialog(`La respuesta no coincide con ninguna de las opciones del menu.`); //menuPrincipal
         }
 
         //session.userData.name = results.response;
         //builder.Prompts.number(session, "Hi " + results.response + ", How many years have you been coding?"); 
         
+        */
     }
-]);       
 
+]);       
 
 
 bot.dialog('/consultarPermisos',[
     
-     function(session) {
+    function(session) {
         
-        session.send(`A continuación se muestran los permisos otorgados a PTESSA. En cada opción podra ver el tipo de permiso, la autoridad que lo otorga y una liga para poder ver una copia del permiso en formato pdf.`);
+        session.send(`A continuación se muestran los permisos otorgados a PTESSA. En cada opción podrá ver el tipo de permiso, la autoridad que lo otorga y una liga para poder ver una copia del permiso en formato pdf.`);
 
         //heroCard permiso de Acopio RME
         var heroCardAcopioRME = new builder.HeroCard(session)
@@ -246,15 +352,127 @@ bot.dialog('/consultarPermisos',[
         
         session.send(msj);
 
+
+        //builder.Prompts.confirm(session,'Deseas realizar otra consulta?',{listStyle:builder.ListStyle.button});
+
+        //Guardar la respuesta del usario en una variable a nivel sesion.
+        //session.userData.continuarChat = results.response;
+        
+        //session.send(`Tu respuesta fue: ${session.userData.continuarChat}`);
+        
         //Terminar dialogo
         session.endDialog();
     }
-
+    
 ]);       
 
 
+bot.dialog('/contactarRepVentas',[
+    function(session){
+
+        session.send(`A continuación le mostramos la información para contactar a nuestros representantes de ventas, o bien, a nuestro departamento de Servicio al Cliente.`);
+
+        //ThumbnailCard Lucy
+        var thumbnailCardLucy = new builder.ThumbnailCard(session)
+            .title('Lucia Rodriguez')
+            .subtitle('Correo: luciar@ptesinc.com')
+            .text('Ciudad: Tijuana')
+            .images([
+                    builder.CardImage.create(session,'http://www.ptesmx.com/download/botImages/logo.png')
+            
+            ]);
+    
+        //ThumbnailCard CarlosD
+        var thumbnailCardCarlos = new builder.ThumbnailCard(session)
+            .title('Carlos DaCosta')
+            .subtitle('Correo: carlosd@ptesinc.com')
+            .text('Ciudad: Tijuana')
+            .images([
+                builder.CardImage.create(session,'http://www.ptesmx.com/download/botImages/logo.png')
+        
+            ]);
+        
+
+        //ThumbnailCard Israel
+        var thumbnailCardIsrael = new builder.ThumbnailCard(session)
+        .title('Israel Flores')
+        .subtitle('Correo: israelf@ptesinc.com')
+        .text('Ciudad: Tijuana')
+        .images([
+            builder.CardImage.create(session,'http://www.ptesmx.com/download/botImages/logo.png')
+    
+        ]);
 
 
+        //ThumbnailCard Pablo
+        var thumbnailCardPablo = new builder.ThumbnailCard(session)
+        .title('Pablo Coria')
+        .subtitle('Correo: pabloc@ptesinc.com')
+        .text('Ciudad: Mexicali')
+        .images([
+            builder.CardImage.create(session,'http://www.ptesmx.com/download/botImages/logo.png')
+    
+        ]);
+    
+
+        //ThumbnailCard SC
+        var thumbnailCardSC = new builder.ThumbnailCard(session)
+        .title('Servicio al Cliente')
+        .subtitle('Correo: sc@ptesinc.com')
+        .text('Ciudad: Tijuana y Mexicali')
+        .images([
+            builder.CardImage.create(session,'http://www.ptesmx.com/download/botImages/logo.png')
+    
+        ]);
+    
+
+
+        //Creamos un array de tarjetas
+        var tarjetas = [thumbnailCardLucy, thumbnailCardCarlos, thumbnailCardIsrael, thumbnailCardPablo, thumbnailCardSC];
+        
+        //Adjuntamos la tarjeta al mensaje
+        var msj = new builder.Message(session).attachmentLayout(builder.AttachmentLayout.carousel).attachments(tarjetas);
+                
+        session.send(msj);
+        
+        //Terminar dialogo
+        session.endDialog();
+        
+    }
+
+]);
+
+
+bot.dialog('/consultarHorarioContrarecibos', [
+    
+    function(session, results){
+
+        session.send(`El horario para la entrega de contrarecibos y cheques es: **Día Martes de 10 am - 1 pm** y **2pm a 4 pm**`);
+
+        session.endDialog();
+
+    }
+    /*
+    function(session, results){
+        if (results.response){
+
+            //Guardar la respuesta del usario en una variable a nivel sesion.
+            session.userData.continuarChat = results.response;
+
+            session.send(`Tu respuesta fue: ${session.userData.continuarChat}`);
+
+            session.endDialog('Salida del dialogo con respuesta');
+        }
+        else {
+            session.endDialog('Salida sin respuesta');
+        }
+    }
+    */
+
+]);
+
+
+/*
 if (useEmulator) {
     var restify = require('restify');
     var server = restify.createServer();
@@ -265,6 +483,5 @@ if (useEmulator) {
 } else {
     module.exports = { default: connector.listen() }
 }
-
-
+*/
 
