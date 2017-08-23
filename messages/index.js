@@ -8,7 +8,6 @@ https://aka.ms/abs-node-waterfall
 
 
 /*-------------------- Bloque de codigo para usar emulador local ------------*/
-/*
 
 //Configuracion de restify y builder
 var restify = require('restify');
@@ -45,7 +44,7 @@ bot.localePath(path.join(__dirname, './locale')); //Asignarle al bot la ubicacio
 //Enlazar el listening del bot al objeto tipo server creado anteriormente
 server.post('/api/messages',connector.listen());
 
-*/
+
 /*-------------------- Bloque de codigo para usar emulador local ------------*/
 
 
@@ -57,7 +56,7 @@ server.post('/api/messages',connector.listen());
 
 /*-------------------- Bloque de codigo para usar el Azure Bot Service ------------*/
 /*---------------------------------------------------------------------------------*/
-
+/*
 
 var builder = require("botbuilder"); //modulo para la creacion de objetos tipo bot
 var botbuilder_azure = require("botbuilder-azure"); //modulo para la creacion de objetos tipo bot en azure
@@ -79,7 +78,7 @@ var connector = useEmulator ? new builder.ChatConnector() : new botbuilder_azure
 var bot = new builder.UniversalBot(connector); //Crear bot
 bot.localePath(path.join(__dirname, './locale')); //Asignarle al bot la ubicacion del folder "locale"
 
-
+*/
 
 /*---------------------------------------------------------------------------------*/
 /*-------------------- Bloque de codigo para usar el Azure Bot Service ------------*/
@@ -123,7 +122,7 @@ bot.dialog('/', [
         //Guardar la opcion seleccionada en una variable a nivel sesion.
         session.userData.seleccionMenuPrincipal = results.response.entity;
         
-        if (session.userData.seleccionMenuPrincipal == "Contactar a Rep. de Ventas o SC") {
+        if (session.userData.seleccionMenuPrincipal == "Contactar a Rep. de Ventas / Serv. al Cliente") {
 
             //Guardar la opcion seleccionada en una variable a nivel sesion.
             session.userData.opcionSeleccionada = 1; //Contactar rep. de ventas
@@ -210,7 +209,7 @@ bot.dialog('/menuPrincipal',[
     
     function (session) {
         
-        builder.Prompts.choice(session,'En que podemos ayudarle el día de hoy?. (Seleccione una de las opciones haciendo clic sobre ella)','Contactar a Rep. de Ventas o SC|Consultar Permisos|Dia de Entrega de Contrarecibos-Cheques|Salir', { listStyle: builder.ListStyle.button });
+        builder.Prompts.choice(session,'En que podemos ayudarle el día de hoy?. (Seleccione una de las opciones haciendo clic sobre ella)','Contactar a Rep. de Ventas / Serv. al Cliente|Consultar Permisos|Dia de Entrega de Contrarecibos-Cheques|Salir', { listStyle: builder.ListStyle.button });
     },
         
         
@@ -375,7 +374,7 @@ bot.dialog('/contactarRepVentas',[
 
         //ThumbnailCard Lucy
         var thumbnailCardLucy = new builder.ThumbnailCard(session)
-            .title('Lucia Rodriguez')
+            .title('Lucía Rodríguez')
             .subtitle('Correo: luciar@ptesinc.com')
             .text('Ciudad: Tijuana')
             .images([
@@ -448,7 +447,7 @@ bot.dialog('/consultarHorarioContrarecibos', [
     
     function(session, results){
 
-        session.send(`El horario para la entrega de contrarecibos y cheques es: **Día Martes de 10 am - 1 pm** y **2pm a 4 pm**`);
+        session.send(`El horario para la entrega de contrarecibos y cheques es: **Día Martes de 10 am a 1 pm** y de **2 pm a 4 pm**`);
 
         session.endDialog();
 
@@ -473,7 +472,7 @@ bot.dialog('/consultarHorarioContrarecibos', [
 ]);
 
 
-
+/*
 if (useEmulator) {
     var restify = require('restify');
     var server = restify.createServer();
@@ -484,5 +483,5 @@ if (useEmulator) {
 } else {
     module.exports = { default: connector.listen() }
 }
-
+*/
 
